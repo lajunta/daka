@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>找差异</title>
+
+  <link rel="stylesheet" href="bootstrap.min.css">
+
+</head>
+
+</head>
+
+<body>
+  <div id="app">
+    <div class="container">
+      <h1 class="text-center my-5">找出二列的差异</h1>
+      <hr>
+      <div class="row">
+        <div class="col">
+          <h3 class="text-center">原班名单{{ numleft }}</h3>
+          <textarea name="" id="" rows="20" class="form-control" v-model="dataleft"></textarea>
+        </div>
+        <div class="col">
+          <h3 class="text-center">报名名单{{ numright }}</h3>
+          <textarea name="" id="" rows="20" class="form-control" v-model="dataright"></textarea>
+        </div>
+      </div>
+
+      <p>
+        {{ message }}
+      </p>
+      <div class="d-flex btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-primary mr-2" @click="same">已打卡的</button>
+        <button type="button" class="btn btn-secondary mr-2" @click="clear">清除数据</button>
+        <button type="button" class="btn btn-warning" @click="notsame">未打卡的</button>
+      </div>
+
+    </div>
+  </div>
+  <script src="jquery.min.js"></script>
+  <script src="bootstrap.min.js"></script>
+  <script src="vue.min.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: '',
+        dataleft: "",
+        origleft: "",
+        origright: "",
+        dataright: "",
+        numleft: null,
+        numright: null,
+        origit: false,
+      },
+      methods: {
+
+        intersect: function (a, b) {
+          var t;
+          if (b.length > a.length) t = b, b = a, a = t; // indexOf to loop over shorter
+          return a.filter(function (e) {
+            return b.indexOf(e) > -1;
+          });
+        },
+        clear: function () {
+          this.dataleft = "",
+            this.dataright = "",
+            this.origleft = "",
+            this.origright = "",
+            this.numleft = null,
+            this.numright = null
+        },
+
+        origdata: function(){
+          if (this.origit) {
+            this.dataleft = this.origleft
+            this.dataright = this.origright
+          } else {
+            this.origleft = this.dataleft
+            this.origright = this.dataright
+            this.origit = true
+          }
+        },
+
+        getary: function (str) {
+          return str.split("\n").filter(Boolean).map(el => el.trim()).filter(this.onlyUnique)
+        },
+
+        onlyUnique(value, index, self) {
+          return self.indexOf(value) === index;
+        },
+
+        same: function () {
+          this.origdata()
+
+          let leftd = this.dataleft
+          let rightd = this.dataright
+          let leftary = this.getary(leftd)
+          let rightary = this.getary(rightd)
+          let sameeles1 = this.intersect(leftary, rightary)
+          let sameeles2 = this.intersect(leftary, rightary)
+          console.log(leftary)
+          console.log(sameeles1)
+          this.numleft = "已打卡"+sameeles1.length.toString()
+          this.numright = sameeles2.length
+          this.dataleft = sameeles1.join("\n")
+          this.dataright = sameeles2.join("\n")
+        },
+
+        notsame: function () {
+          this.origdata()
+
+          let leftd = this.dataleft
+          let rightd = this.dataright
+          let leftary = this.getary(leftd)
+          let rightary = this.getary(rightd)
+          let sameeles1 = leftary.filter(value => !rightary.includes(value))
+          let sameeles2 = rightary.filter(value => !leftary.includes(value))
+          this.numleft = "未打卡"+sameeles1.length.toString()
+          this.numright = sameeles2.length
+          this.dataleft = sameeles1.join("\n")
+          this.dataright = sameeles2.join("\n")
+        }
+      },
+    })
+  </script>
+</body>
+
+</html>
